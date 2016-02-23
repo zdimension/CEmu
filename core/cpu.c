@@ -799,7 +799,7 @@ void cpu_execute(void) {
         if (cpu.inBlock) {
             goto cpu_execute_bli_continue;
         }
-        while (cpu.PREFIX || cpu.SUFFIX || cpu.cycles < cpu.next) {
+        do {
             // fetch opcode
             context.opcode = cpu_fetch_byte();
             r->R += 2;
@@ -1410,7 +1410,7 @@ void cpu_execute(void) {
                     break;
             }
             cpu_clear_mode();
-        }
+        } while (cpu.PREFIX || cpu.SUFFIX || cpu.cycles < cpu.next);
     }
 }
 

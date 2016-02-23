@@ -595,7 +595,6 @@ static void cpu_execute_bli() {
     int_fast8_t delta = cpu.context.q ? -1 : 1;
     bool repeat = (cpu.context.x | cpu.context.p) & 1;
     do {
-        cpu.cycles += internalCycles;
         switch (cpu.context.z) {
             case 0:
                 switch (xp) {
@@ -616,7 +615,6 @@ static void cpu_execute_bli() {
             case 1:
                 switch (xp) {
                     case 0xA: // CPI, CPD
-                        cpu.cycles--;
                         break;
                     case 0xB: // CPIR, CPDR
                         internalCycles = 2;
@@ -633,6 +631,9 @@ static void cpu_execute_bli() {
                     | cpuflag_subtract(1) | cpuflag_c(r->flags.C)
                     | cpuflag_undef(r->F);
                 repeat &= !r->flags.Z && r->flags.PV;
+                if (!repeat) {
+                    internalCycles--;
+                }
                 break;
             case 2:
                 switch (xp) {
@@ -717,6 +718,7 @@ static void cpu_execute_bli() {
         }
         // All block instructions
         r->HL = cpu_mask_mode(r->HL + delta, cpu.L);
+        cpu.cycles += internalCycles;
     } while (repeat && (cpu.cycles < cpu.next));
     cpu.inBlock = repeat;
 }

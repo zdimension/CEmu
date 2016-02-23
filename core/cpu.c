@@ -777,7 +777,6 @@ void cpu_execute(void) {
         }
         if (cpu.NMI || (cpu.IEF1 && (intrpt.request->status & intrpt.request->enabled))) {
             if (cpu.inBlock) {
-                r->PC = cpu_address_mode(r->PC - 2 - cpu.SUFFIX, cpu.ADL);
                 cpu.inBlock = 0;
                 cpu_get_cntrl_data_blocks_format();
             }
@@ -808,6 +807,7 @@ void cpu_execute(void) {
         cpu_execute_inBlock:
             cpu_execute_bli();
             if (!cpu.inBlock) {
+                r->PC = cpu_address_mode(r->PC + 2 + cpu.SUFFIX, cpu.ADL);
                 cpu_get_cntrl_data_blocks_format();
             }
         }
@@ -1367,6 +1367,7 @@ void cpu_execute(void) {
                                                     }
                                                     break;
                                                 case 2:
+                                                    r->PC = cpu_address_mode(r->PC - 2 - cpu.SUFFIX, cpu.ADL);
                                                     cpu.context = context;
                                                     goto cpu_execute_inBlock;
                                                 case 3:  // There are only a few of these, so a simple switch for these shouldn't matter too much
@@ -1375,6 +1376,7 @@ void cpu_execute(void) {
                                                         case 0xC3: // OTIRX
                                                         case 0xCA: // INDRX
                                                         case 0xCB: // OTDRX
+                                                            r->PC = cpu_address_mode(r->PC - 2 - cpu.SUFFIX, cpu.ADL);
                                                             cpu.context = context;
                                                             goto cpu_execute_inBlock;
                                                         case 0xC7: // LD I, HL

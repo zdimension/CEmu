@@ -19,8 +19,8 @@
 
 #include <string.h>
 
-// #include <stdio.h>
-// #include <windows.h>
+#include <stdio.h>
+#include <windows.h>
 
 #include "cpu.h"
 #include "emu.h"
@@ -39,6 +39,7 @@ static void cpu_get_cntrl_data_blocks_format(void) {
     cpu.PREFIX = cpu.SUFFIX = 0;
     cpu.L = cpu.ADL;
     cpu.IL = cpu.ADL;
+    cpu.inBlock = 0;
 }
 
 static uint32_t cpu_mask_mode(uint32_t value, bool mode) {
@@ -598,6 +599,7 @@ static void cpu_execute_bli() {
     uint_fast8_t xp = cpu.context.x << 2 | cpu.context.y >> 1;
     int_fast8_t delta = cpu.context.q ? -1 : 1;
     bool repeat = (cpu.context.x | cpu.context.p) & 1;
+    // fprintf(stderr, ">> [ED%02x] %x, r=%i, bc=0x%08x, hl=0x%08x+=%i, pc=0x%08x, sp=0x%08x\n", cpu.context.opcode, xp, (int) repeat, r->BC, r->HL, delta, r->PC, r->SPL);
     do {
         // fprintf(stderr, "%02x %i 0x%08x 0x%08x\n", x << 6 | y << 3 | z, cpu.cycles, r->HL, r->BC);
         // Sleep(100);
@@ -725,6 +727,7 @@ static void cpu_execute_bli() {
         r->HL = cpu_mask_mode(r->HL + delta, cpu.L);
         // fprintf(stderr, "0x%08x %i %i\n", r->BC, r->flags.PV, repeat);
     } while (repeat && (cpu.cycles < cpu.next));
+    // fprintf(stderr, " <<[ED%02x] %x, r=%i, bc=0x%08x, hl=0x%08x+=%i, pc=0x%08x, sp=0x%08x\n", cpu.context.opcode, xp, (int) repeat, r->BC, r->HL, delta, r->PC, r->SPL);
     cpu.inBlock = repeat;
     // fprintf(stderr, "cya\n");
 }
@@ -776,10 +779,7 @@ void cpu_execute(void) {
             cpu.next = save_next;
         }
         if (cpu.NMI || (cpu.IEF1 && (intrpt.request->status & intrpt.request->enabled))) {
-            if (cpu.inBlock) {
-                cpu.inBlock = 0;
-                cpu_get_cntrl_data_blocks_format();
-            }
+            cpu_get_cntrl_data_blocks_format();
             cpu.IEF1 = cpu.IEF2 = cpu.halted = 0;
             cpu.cycles += 1;
             if (cpu.NMI) {
@@ -810,8 +810,11 @@ void cpu_execute(void) {
                 r->PC = cpu_address_mode(r->PC + 2 + cpu.SUFFIX, cpu.ADL);
                 cpu_get_cntrl_data_blocks_format();
             }
+            if (cpu.cycles >= cpu.next) {
+                continue;
+            }
         }
-        while (cpu.cycles < cpu.next) {
+        do {
             // fetch opcode
             context.opcode = cpu_fetch_byte();
             r->R += 2;
@@ -1416,7 +1419,7 @@ void cpu_execute(void) {
                     break;
             }
             cpu_get_cntrl_data_blocks_format();
-        }
+        } while (cpu.cycles < cpu.next);
     }
 }
 

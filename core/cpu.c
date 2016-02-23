@@ -765,6 +765,7 @@ void cpu_execute(void) {
 
     uint32_t save_next = cpu.next;
     while (!exiting) {
+    cpu_execute_continue:
         if (cpu.IEF_wait) {
             cpu.IEF_wait = 0;
             cpu.IEF1 = cpu.IEF2 = 1;
@@ -1360,7 +1361,7 @@ void cpu_execute(void) {
                                                 cpu_execute_bli_continue:
                                                     cpu_execute_bli();
                                                     if (cpu.inBlock) {
-                                                        continue;
+                                                        goto cpu_execute_continue;
                                                     } else {
                                                         r->PC = cpu_address_mode(r->PC + 2 + cpu.SUFFIX, cpu.ADL);
                                                     }

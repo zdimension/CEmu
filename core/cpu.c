@@ -19,9 +19,6 @@
 
 #include <string.h>
 
-#include <stdio.h>
-#include <windows.h>
-
 #include "cpu.h"
 #include "emu.h"
 #include "mem.h"
@@ -391,7 +388,6 @@ static void cpu_call(uint32_t address, bool mixed) {
 }
 
 static void cpu_trap(void) {
-    // fprintf(stderr, "It's a trap! 0x%08x\n", cpu.registers.PC);
     cpu_clear_mode();
     cpu_call(0x00, cpu.MADL);
 }
@@ -598,10 +594,7 @@ static void cpu_execute_bli() {
     uint_fast8_t xp = cpu.context.x << 2 | cpu.context.y >> 1;
     int_fast8_t delta = cpu.context.q ? -1 : 1;
     bool repeat = (cpu.context.x | cpu.context.p) & 1;
-    // fprintf(stderr, ">> [ED%02x] %x, r=%i, bc=0x%08x, hl=0x%08x+=%i, pc=0x%08x, sp=0x%08x\n", cpu.context.opcode, xp, (int) repeat, r->BC, r->HL, delta, r->PC, r->SPL);
     do {
-        // fprintf(stderr, "%02x %i 0x%08x 0x%08x\n", x << 6 | y << 3 | z, cpu.cycles, r->HL, r->BC);
-        // Sleep(100);
         cpu.cycles += internalCycles;
         switch (cpu.context.z) {
             case 0:
@@ -724,11 +717,8 @@ static void cpu_execute_bli() {
         }
         // All block instructions
         r->HL = cpu_mask_mode(r->HL + delta, cpu.L);
-        // fprintf(stderr, "0x%08x %i %i\n", r->BC, r->flags.PV, repeat);
     } while (repeat && (cpu.cycles < cpu.next));
-    // fprintf(stderr, " <<[ED%02x] %x, r=%i, bc=0x%08x, hl=0x%08x+=%i, pc=0x%08x, sp=0x%08x\n", cpu.context.opcode, xp, (int) repeat, r->BC, r->HL, delta, r->PC, r->SPL);
     cpu.inBlock = repeat;
-    // fprintf(stderr, "cya\n");
 }
 
 void cpu_init(void) {

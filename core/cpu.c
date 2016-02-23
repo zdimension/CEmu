@@ -19,8 +19,8 @@
 
 #include <string.h>
 
-#include <stdio.h>
-#include <windows.h>
+// #include <stdio.h>
+// #include <windows.h>
 
 #include "cpu.h"
 #include "emu.h"
@@ -391,7 +391,7 @@ static void cpu_call(uint32_t address, bool mixed) {
 }
 
 static void cpu_trap(void) {
-    fprintf(stderr, "It's a trap! 0x%08x\n", cpu.registers.PC);
+    // fprintf(stderr, "It's a trap! 0x%08x\n", cpu.registers.PC);
     cpu_get_cntrl_data_blocks_format();
     cpu_call(0x00, cpu.MADL);
 }
@@ -1415,10 +1415,8 @@ void cpu_execute(void) {
                     }
                     break;
             }
-            if (!cpu.inBlock) {
-                cpu_get_cntrl_data_blocks_format();
-            }
-        } while (cpu.cycles < cpu.next);
+            cpu_get_cntrl_data_blocks_format();
+        }
     }
 }
 

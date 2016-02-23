@@ -32,14 +32,13 @@
 /* Global CPU state */
 eZ80cpu_t cpu;
 
-static void cpu_get_cntrl_data_blocks_format(void) {
+static void cpu_clear_mode(void) {
 #ifdef DEBUG_SUPPORT
     debugger.data.block[cpu.registers.PC] |= DBG_INST_START_MARKER;
 #endif
     cpu.PREFIX = cpu.SUFFIX = 0;
     cpu.L = cpu.ADL;
     cpu.IL = cpu.ADL;
-    cpu.inBlock = 0;
 }
 
 static uint32_t cpu_mask_mode(uint32_t value, bool mode) {
@@ -393,7 +392,7 @@ static void cpu_call(uint32_t address, bool mixed) {
 
 static void cpu_trap(void) {
     // fprintf(stderr, "It's a trap! 0x%08x\n", cpu.registers.PC);
-    cpu_get_cntrl_data_blocks_format();
+    cpu_clear_mode();
     cpu_call(0x00, cpu.MADL);
 }
 
@@ -746,7 +745,8 @@ void cpu_reset(void) {
 
 void cpu_flush(uint32_t address, bool mode) {
     cpu_prefetch(address, mode);
-    cpu_get_cntrl_data_blocks_format();
+    cpu_clear_mode();
+    cpu.inBlock = 0;
 }
 
 void cpu_nmi(void) {
@@ -779,8 +779,8 @@ void cpu_execute(void) {
             cpu.next = save_next;
         }
         if (cpu.NMI || (cpu.IEF1 && (intrpt.request->status & intrpt.request->enabled))) {
-            cpu_get_cntrl_data_blocks_format();
-            cpu.IEF1 = cpu.IEF2 = cpu.halted = 0;
+            cpu_clear_mode();
+            cpu.IEF1 = cpu.IEF2 = cpu.halted = cpu.inBlock = 0;
             cpu.cycles += 1;
             if (cpu.NMI) {
                 cpu.NMI = 0;
@@ -804,17 +804,9 @@ void cpu_execute(void) {
             break;
         }
         if (cpu.inBlock) {
-        cpu_execute_inBlock:
-            cpu_execute_bli();
-            if (!cpu.inBlock) {
-                r->PC = cpu_address_mode(r->PC + 2 + cpu.SUFFIX, cpu.ADL);
-                cpu_get_cntrl_data_blocks_format();
-            }
-            if (cpu.cycles >= cpu.next) {
-                continue;
-            }
+            goto cpu_execute_bli_continue;
         }
-        do {
+        while (cpu.PREFIX || cpu.SUFFIX || cpu.cycles < cpu.next) {
             // fetch opcode
             context.opcode = cpu_fetch_byte();
             r->R += 2;
@@ -1370,18 +1362,24 @@ void cpu_execute(void) {
                                                     }
                                                     break;
                                                 case 2:
+                                                cpu_execute_bli_start:
                                                     r->PC = cpu_address_mode(r->PC - 2 - cpu.SUFFIX, cpu.ADL);
                                                     cpu.context = context;
-                                                    goto cpu_execute_inBlock;
+                                                cpu_execute_bli_continue:
+                                                    cpu_execute_bli();
+                                                    if (cpu.inBlock) {
+                                                        continue;
+                                                    } else {
+                                                        r->PC = cpu_address_mode(r->PC + 2 + cpu.SUFFIX, cpu.ADL);
+                                                    }
+                                                    break;
                                                 case 3:  // There are only a few of these, so a simple switch for these shouldn't matter too much
                                                     switch(context.opcode) {
                                                         case 0xC2: // INIRX
                                                         case 0xC3: // OTIRX
                                                         case 0xCA: // INDRX
                                                         case 0xCB: // OTDRX
-                                                            r->PC = cpu_address_mode(r->PC - 2 - cpu.SUFFIX, cpu.ADL);
-                                                            cpu.context = context;
-                                                            goto cpu_execute_inBlock;
+                                                            goto cpu_execute_bli_start;
                                                         case 0xC7: // LD I, HL
                                                             r->I = r->HL & 0xFFFF;
                                                             break;
@@ -1418,8 +1416,8 @@ void cpu_execute(void) {
                     }
                     break;
             }
-            cpu_get_cntrl_data_blocks_format();
-        } while (cpu.cycles < cpu.next);
+            cpu_clear_mode();
+        }
     }
 }
 

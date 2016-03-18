@@ -36,27 +36,27 @@ Listing for file "time.ez80"
    37 D1:A8A0 E5 -  -  -  	push	hl
    38 D1:A8A1 -  -  -  -  
    39 D1:A8A1 -  -  -  -  ;-------------------------------
-   40 D1:A8A1 DD 7E 00 -  	ld a,(ix+0)
-   41 D1:A8A4 -  -  -  -  ;-------------------------------
-   42 D1:A8A4 -  -  -  -  
-   43 D1:A8A4 E1 -  -  -  	pop	hl
-   44 D1:A8A5 CB 86 -  -  	res	0,(hl)
-   45 D1:A8A7 6C -  -  -  	ld	l,h
-   46 D1:A8A8 ED 27 -  -  	ld	hl,(hl)
-   47 D1:A8AA 11 C5 A8 D1 	ld	de,data
-   48 D1:A8AE 1A -  -  -  	ld	a,(de)
-   49 D1:A8AF BD -  -  -  	cp	a,l
-   50 D1:A8B0 38 02 -  -  	jr	c,+_
-   51 D1:A8B2 7D -  -  -  	ld	a,l
-   52 D1:A8B3 12 -  -  -  	ld	(de),a
-   53 D1:A8B4 C1 -  -  -  _:	pop	bc
-   54 D1:A8B5 10 D8 -  -  	djnz	--_
-   55 D1:A8B7 B7 -  -  -  	or	a,a
-   56 D1:A8B8 ED 62 -  -  	sbc	hl,hl
-   57 D1:A8BA 1A -  -  -  	ld	a,(de)
-   58 D1:A8BB 6F -  -  -  	ld	l,a
-   59 D1:A8BC 11 D7 FF FF 	ld	de,-41
-   60 D1:A8C0 19 -  -  -  	add	hl,de
-   61 D1:A8C1 C3 E0 1E 02 	jp	_DispHL
-   62 D1:A8C5 -  -  -  -  	
-   63 D1:A8C5 FF -  -  -  data:   .db 255
+   40 D1:A8A1 ED 6A -  -  	adc	hl,hl
+   41 D1:A8A3 -  -  -  -  ;-------------------------------
+   42 D1:A8A3 -  -  -  -  
+   43 D1:A8A3 E1 -  -  -  	pop	hl
+   44 D1:A8A4 CB 86 -  -  	res	0,(hl)
+   45 D1:A8A6 6C -  -  -  	ld	l,h
+   46 D1:A8A7 ED 27 -  -  	ld	hl,(hl)
+   47 D1:A8A9 11 C4 A8 D1 	ld	de,data
+   48 D1:A8AD 1A -  -  -  	ld	a,(de)
+   49 D1:A8AE BD -  -  -  	cp	a,l
+   50 D1:A8AF 38 02 -  -  	jr	c,+_
+   51 D1:A8B1 7D -  -  -  	ld	a,l
+   52 D1:A8B2 12 -  -  -  	ld	(de),a
+   53 D1:A8B3 C1 -  -  -  _:	pop	bc
+   54 D1:A8B4 10 D9 -  -  	djnz	--_
+   55 D1:A8B6 B7 -  -  -  	or	a,a
+   56 D1:A8B7 ED 62 -  -  	sbc	hl,hl
+   57 D1:A8B9 1A -  -  -  	ld	a,(de)
+   58 D1:A8BA 6F -  -  -  	ld	l,a
+   59 D1:A8BB 11 D7 FF FF 	ld	de,-41
+   60 D1:A8BF 19 -  -  -  	add	hl,de
+   61 D1:A8C0 C3 E0 1E 02 	jp	_DispHL
+   62 D1:A8C4 -  -  -  -  	
+   63 D1:A8C4 FF -  -  -  data:   .db 255

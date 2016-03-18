@@ -188,7 +188,7 @@ void EmuThread::sendActualSpeed() {
     }
 }
 
-void EmuThread::setActualSpeed(int value) {
+void EmuThread::setActualSpeed(quint64 value) {
     if(!calc_is_off()) {
         if (actualSpeed != value) {
             actualSpeed = value;
@@ -197,8 +197,8 @@ void EmuThread::setActualSpeed(int value) {
 }
 
 void EmuThread::throttleTimerWait() {
-    qint64 interval = 100000 / (60 * speed);
-    qint64 cur_time = updateTimer.elapsed(), next_time = lastTime + interval;
+    quint64 interval = 100000 / (60 * speed);
+    quint64 cur_time = updateTimer.elapsed(), next_time = lastTime + interval;
     if (throttleOn && cur_time < next_time) {
         setActualSpeed(speed);
         lastTime = next_time;
@@ -241,14 +241,12 @@ bool EmuThread::stop() {
     emu_is_sending = false;
 
     /* Cause the CPU core to leave the loop and check for events */
-    exiting = true; // exit outer loop
-    cpu.next = 0; // exit inner loop
+    exiting = true; /* exit outer loop */
+    cpu.next = 0;   /* exit inner loop */
 
-    if(!this->wait(200))
-    {
+    if(!this->wait(200)) {
         terminate();
-        if(!this->wait(200))
-        {
+        if(!this->wait(200)) {
             return false;
         }
     }

@@ -141,7 +141,7 @@ private:
     // Speed
     void changeEmulatedSpeed(int);
     void changeThrottleMode(int);
-    void showActualSpeed(int);
+    void showActualSpeed(quint64);
 
     // Console
     void showStatusMsg(QString);

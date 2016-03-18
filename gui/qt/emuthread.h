@@ -34,14 +34,14 @@ signals:
     void exited(int);
 
     // Status
-    void actualSpeedChanged(int);
+    void actualSpeedChanged(quint64);
     void isBusy(bool busy);
 
     // Save/Restore state
     void saved(bool);
     void restored(bool);
 
-    // Stopped/Started
+    // Stopped / Started
     void started(bool);
     void stopped();
 
@@ -74,9 +74,9 @@ public slots:
     void sendActualSpeed();
 
 private:
-    void setActualSpeed(int);
+    void setActualSpeed(quint64);
 
-    int speed, actualSpeed;
+    quint64 speed, actualSpeed;
     bool enterDebugger = false;
     bool enterSendState = false;
     bool enterReceiveState = false;

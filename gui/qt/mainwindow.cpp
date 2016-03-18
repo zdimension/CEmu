@@ -495,7 +495,7 @@ void MainWindow::changeThrottleMode(int mode) {
     emit changedThrottleMode(mode == Qt::Checked);
 }
 
-void MainWindow::showActualSpeed(int speed) {
+void MainWindow::showActualSpeed(quint64 speed) {
     showStatusMsg(QStringLiteral(" ") + tr("Actual Speed: ") + QString::number(speed, 10) + QStringLiteral("%"));
 }
 
